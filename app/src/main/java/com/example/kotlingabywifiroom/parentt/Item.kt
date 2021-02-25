@@ -1,7 +1,6 @@
-package com.example.kotlingabywifiroom.Parent
+package com.example.kotlingabywifiroom.parentt
 
 import androidx.annotation.NonNull
-import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 

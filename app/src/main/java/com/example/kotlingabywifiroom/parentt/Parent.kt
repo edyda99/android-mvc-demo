@@ -1,4 +1,4 @@
-//package com.example.kotlingabywifiroom.Parent
+package com.example.kotlingabywifiroom.parentt//package com.example.kotlingabywifiroom.Parent
 //
 //import androidx.annotation.NonNull
 //import androidx.room.Entity

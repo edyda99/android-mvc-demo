@@ -1,4 +1,4 @@
-package com.example.kotlingabywifiroom.Parent
+package com.example.kotlingabywifiroom.parentt
 
 data class Owner(
     val avatar_url: String,

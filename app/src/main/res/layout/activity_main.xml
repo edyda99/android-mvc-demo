@@ -24,6 +24,6 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="0dp"
-            tools:listitem="@layout/recyclerview_layout" />
+            tools:listitem="@layout/list_item_layout" />
     </androidx.core.widget.NestedScrollView>
 </RelativeLayout>

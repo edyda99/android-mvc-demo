@@ -1,14 +1,11 @@
 package com.example.kotlingabywifiroom
 
-import android.content.Intent
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Chronometer
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
@@ -17,40 +14,31 @@ import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kotlingabywifiroom.API.ParentNetwork
-import com.example.kotlingabywifiroom.Activity2.SingleSelectActivity
-import com.example.kotlingabywifiroom.Adapter.OnNoteClickListner
 import com.example.kotlingabywifiroom.Adapter.ParentAdapter
-import com.example.kotlingabywifiroom.MainActivity.Companion.page
-import com.example.kotlingabywifiroom.Parent.Item
-import com.example.kotlingabywifiroom.Parent.Parentt
+import com.example.kotlingabywifiroom.parentt.Item
+import com.example.kotlingabywifiroom.ParentViewModel.Factory
 import com.example.kotlingabywifiroom.ParentViewModel.ParentViewModel
-import com.example.kotlingabywifiroom.util.Resource
 import com.example.kotlingabywifiroom.util.Status
-import com.google.android.material.slider.Slider
-import kotlinx.coroutines.Dispatchers
-import org.greenrobot.eventbus.EventBus
-import java.util.*
 
-class MainActivity : AppCompatActivity(), OnNoteClickListner {
+class MainActivity : AppCompatActivity() {
+
     private val TAG = MainActivity::class.java.simpleName
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ParentAdapter
     private var isLinearLayoutManager = true
     private var mTimeLeftInMillis: Long = 600000
-    private lateinit var mTextViewCountDown: TextView
     private lateinit var chrono: Chronometer
     private var ed: Long? = null
     private lateinit var switcher: SwitchCompat
     private val parentViewModel: ParentViewModel by lazy {
-        ViewModelProvider(this, ParentViewModel.Factory(application))
+        ViewModelProvider(this, Factory(application))
             .get(ParentViewModel::class.java)
     }
     private var radioButtn: Boolean = false
+    private var radioButtn2 = MutableLiveData<Boolean>(false)
     private lateinit var nestedScrollView: NestedScrollView
 
     companion object {
@@ -81,7 +69,7 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
         recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
 
         recyclerView.setLayoutManager(LinearLayoutManager(this))
-        adapter = ParentAdapter(arrayListOf(), this)
+        adapter = ParentAdapter(arrayListOf(),this)
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
 
@@ -90,27 +78,27 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
 //            mTimeLeftInMillis = savedInstanceState.getLong("millisLeft")
             ed = savedInstanceState.getLong("chrono")
         }
-        //timer
-//        startTimer()
+
         parentViewModel.parents().observe(this, Observer {
             it?.let { resource ->
                 when (resource.status) {
                     Status.SUCCESS -> {
-                        liveData(Dispatchers.IO) {
-                            emit(
-                                Resource.success(
-                                    ParentNetwork.devbytes.getTop(
-                                        "created:>2021-02-17",
-                                        "stars",
-                                        "desc",
-                                        "${MainActivity.page}"
-                                    )
-                                )
-                            )
-                        }
-                        Log.d(TAG, "bl success")
-                        recyclerView.visibility = View.VISIBLE
-                        resource.data?.let { users -> retrieveList(users) }
+                        radioButtn2.observe(this, Observer {
+                            Log.d(TAG, "bl success")
+                            recyclerView.visibility = View.VISIBLE
+                            if (radioButtn2.value==true) {
+                                resource.data?.items?.sortedWith(compareByDescending({ it.id })).let {  users -> retrieveList(
+                                    users!!
+                                ) }
+                                Log.d("10452","10452")
+                            }
+                                else {
+                                resource.data?.items?.sortedWith(compareBy({ it.id })).let {  users -> retrieveList(
+                                    users!!
+                                ) }
+                                Log.d("10453","10453")
+                                }
+                           })
                     }
                     Status.ERROR -> {
                         recyclerView.visibility = View.VISIBLE
@@ -149,9 +137,9 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
     }
 
 
-    private fun retrieveList(users: Parentt) {
+    private fun retrieveList(users: List<Item>) {
         adapter.apply {
-            addUsers(users.items)
+            addUsers(users)
             chooselayout()
             notifyDataSetChanged()
         }
@@ -181,10 +169,25 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
         val layoutButton = menu?.findItem(R.id.menu)
         val layoutSwitch = menu!!.findItem(R.id.switchOnOffItem)
         switcher = layoutSwitch.actionView as SwitchCompat
-        val timer = menu!!.findItem(R.id.timer)
+        val timer = menu.findItem(R.id.timer)
         chrono = timer.actionView as Chronometer
         ed?.let { chrono.setBase(it) }
         chrono.start()
+
+        if (layoutSwitch != null) {
+            layoutSwitch.actionView.setOnClickListener(object : View.OnClickListener {
+                override fun onClick(v: View?) {
+                    radioButtn = !radioButtn
+                    radioButtn2.value = radioButtn
+//                    sortMyList()
+
+                    Log.d("gaby a2wa zalame", "gaby")
+                }
+
+            })
+        }
+
+
         // Calls code to set the icon based on the LinearLayoutManager of the RecyclerView
         setIcon(layoutButton)
 
@@ -201,42 +204,16 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
                 setIcon(item)
                 return true
             }
-            R.id.switchOnOffItem -> {
-                radioButtn = !radioButtn
-                sortMyList()
-                true
-            }
-
-            //  Otherwise, do nothing and use the core event handling
-
-            // when clauses require that all possible paths be accounted for explicitly,
-            //  for instance both the true and false cases if the value is a Boolean,
-            //  or an else to catch all unhandled cases.
-            else -> super.onOptionsItemSelected(item)
+            else -> {true}
         }
-    }
-
-    private fun sortMyList() {
-        if (radioButtn)
-            adapter.apply {
-                sortUsers()
-
-            }
-        else
-            adapter.apply {
-                unsortUsers()
-                notifyDataSetChanged()
-
-            }
-        recyclerView.adapter = adapter
+//            super.onOptionsItemSelected(item)
 
     }
 
-    override fun onItemClick(item: Item, position: Int) {
-        EventBus.getDefault().postSticky(item)
-        val intent = Intent(this, SingleSelectActivity::class.java)
-        startActivity(intent)
+
     }
+
+
 
 
 //    fun startTimer() {
@@ -262,4 +239,4 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
 //    }
 
 
-}
+

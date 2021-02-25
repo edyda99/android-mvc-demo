@@ -2,56 +2,63 @@ package com.example.kotlingabywifiroom.Adapter
 
 //import com.example.kotlingabywifiroom.Parent.Items
 //import com.example.kotlingabywifiroom.Parent.Parent
+import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.appcompat.widget.AppCompatTextView
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kotlingabywifiroom.Parent.Item
+import com.example.kotlingabywifiroom.Activity2.SingleSelectActivity
+import com.example.kotlingabywifiroom.parentt.Item
 import com.example.kotlingabywifiroom.R
+import com.example.kotlingabywifiroom.databinding.ListItemLayoutBinding
+//import com.example.kotlingabywifiroom.databinding.RecyclerviewLayoutBinding
+import org.greenrobot.eventbus.EventBus
 import java.util.*
-import java.util.Arrays.sort
-import java.util.Collections.sort
-import kotlin.Comparator
-import kotlin.collections.ArrayList
 
 
-class ParentAdapter(private val users: ArrayList<Item>, var clickListner: OnNoteClickListner) :
+class ParentAdapter(private val users: ArrayList<Item>, val context: Context) :
     RecyclerView.Adapter<ParentAdapter.ParentViewHolder>() {
 
-    class ParentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val idView = itemView.findViewById<TextView>(R.id.id)
-        val full_nameView = itemView.findViewById<TextView>(R.id.full_name)
-        val ownerView = itemView.findViewById<TextView>(R.id.owner)
 
+    class ParentViewHolder(
+        val context: Context,
+        val itemView: View
+    ) :
+        RecyclerView.ViewHolder(itemView) {
+        val idItem = itemView.findViewById<AppCompatTextView>(R.id.idd)
+        val full_name = itemView.findViewById<AppCompatTextView>(R.id.full_name)
+        val owner = itemView.findViewById<AppCompatTextView>(R.id.owner)
         fun bind(user: Item) {
-            idView.setText(user.id.toString())
-            full_nameView.setText(user.full_name)
-            val ed: String = user.owner.login
-            ownerView.setText(ed)
+            idItem.setText(user.id.toString())
+            full_name.text = user.full_name
+            owner.text = user.owner.login
+            itemView.setOnClickListener {
+                EventBus.getDefault().postSticky(user)
+                val intent = Intent(context, SingleSelectActivity::class.java)
+                context.startActivity(intent)
+            }
+
         }
 
-        fun initialize(item: Item, action: OnNoteClickListner) {
-            itemView.setOnClickListener {
-                action.onItemClick(item, adapterPosition)
-            }
-        }
     }
 
-    override fun onCreateViewHolder(view: ViewGroup, viewType: Int): ParentViewHolder =
-        ParentViewHolder(
+    override fun onCreateViewHolder(view: ViewGroup, viewType: Int): ParentViewHolder {
+        return ParentViewHolder(context,
             LayoutInflater.from(view.context).inflate(
-                R.layout.recyclerview_layout,
+                R.layout.list_item_layout,
                 view,
                 false
             )
-        )
 
+        )
+    }
     override fun getItemCount(): Int = users.size
 
     override fun onBindViewHolder(holder: ParentViewHolder, position: Int) {
-        holder.initialize(users.get(position), clickListner)
-        holder.bind(users[position])
+        return holder.bind(users[position])
     }
 
 
@@ -61,20 +68,7 @@ class ParentAdapter(private val users: ArrayList<Item>, var clickListner: OnNote
             addAll(users)
         }
     }
-
-    fun sortUsers()  {
-        this.users.sortedWith(compareBy({ it.id }))
-        notifyDataSetChanged()
-    }
-
-    fun unsortUsers()  {
-         this.users.sortedWith(compareByDescending({ it.id }))
-    }
-
 }
 
-interface OnNoteClickListner {
-    fun onItemClick(item: Item, position: Int)
-}
 
 

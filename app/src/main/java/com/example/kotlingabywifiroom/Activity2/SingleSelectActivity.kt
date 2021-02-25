@@ -2,10 +2,9 @@ package com.example.kotlingabywifiroom.Activity2
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.kotlingabywifiroom.Parent.Item
+import com.example.kotlingabywifiroom.parentt.Item
 import com.example.kotlingabywifiroom.R
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe

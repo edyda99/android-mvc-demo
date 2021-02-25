@@ -1,14 +1,7 @@
 package com.example.kotlingabywifiroom.Room
 
-import android.content.ContentValues.TAG
-import android.content.Context
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.room.*
-import com.example.kotlingabywifiroom.Parent.Item
 //import com.example.kotlingabywifiroom.Parent.Items
 //import com.example.kotlingabywifiroom.Parent.Parent
-import com.example.kotlingabywifiroom.ParentViewModel.ParentViewModel
 //
 //@Dao
 //interface PDao {
