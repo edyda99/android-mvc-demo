@@ -21,19 +21,13 @@ class ParentAdapter(private val users: ArrayList<Item>, var clickListner: OnNote
 
     class ParentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val idView = itemView.findViewById<TextView>(R.id.id)
-        val node_idView = itemView.findViewById<TextView>(R.id.node_id)
-        val priView = itemView.findViewById<TextView>(R.id.pri)
-        val nameView = itemView.findViewById<TextView>(R.id.name)
         val full_nameView = itemView.findViewById<TextView>(R.id.full_name)
         val ownerView = itemView.findViewById<TextView>(R.id.owner)
 
         fun bind(user: Item) {
             idView.setText(user.id.toString())
-            node_idView.setText(user.node_id)
-            priView.setText(user.pri.toString())
-            nameView.setText(user.name)
             full_nameView.setText(user.full_name)
-            val ed: String = user.owner.id.toString() + " " + user.owner.login
+            val ed: String = user.owner.login
             ownerView.setText(ed)
         }
 
@@ -68,13 +62,13 @@ class ParentAdapter(private val users: ArrayList<Item>, var clickListner: OnNote
         }
     }
 
-    fun sortUsers() : List<Item> {
-        return this.users.sortedWith(compareBy({ it.id }))
+    fun sortUsers()  {
+        this.users.sortedWith(compareBy({ it.id }))
+        notifyDataSetChanged()
     }
 
-    fun unsortUsers() :List<Item> {
-        return this.users.sortedWith(compareByDescending({ it.id }))
-
+    fun unsortUsers()  {
+         this.users.sortedWith(compareByDescending({ it.id }))
     }
 
 }

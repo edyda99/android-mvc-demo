@@ -31,6 +31,7 @@ import com.example.kotlingabywifiroom.Parent.Parentt
 import com.example.kotlingabywifiroom.ParentViewModel.ParentViewModel
 import com.example.kotlingabywifiroom.util.Resource
 import com.example.kotlingabywifiroom.util.Status
+import com.google.android.material.slider.Slider
 import kotlinx.coroutines.Dispatchers
 import org.greenrobot.eventbus.EventBus
 import java.util.*
@@ -44,7 +45,7 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
     private lateinit var mTextViewCountDown: TextView
     private lateinit var chrono: Chronometer
     private var ed: Long? = null
-    private lateinit var switcher : SwitchCompat
+    private lateinit var switcher: SwitchCompat
     private val parentViewModel: ParentViewModel by lazy {
         ViewModelProvider(this, ParentViewModel.Factory(application))
             .get(ParentViewModel::class.java)
@@ -75,15 +76,14 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 //        mTextViewCountDown = findViewById(R.id.timer)
-        chrono = findViewById(R.id.chronometer)
         nestedScrollView = findViewById(R.id.scrollView)
         /* Adapting the recycleView */
         recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
 
-            recyclerView.setLayoutManager(LinearLayoutManager(this))
-            adapter = ParentAdapter(arrayListOf(), this)
-            recyclerView.setHasFixedSize(true)
-            recyclerView.adapter = adapter
+        recyclerView.setLayoutManager(LinearLayoutManager(this))
+        adapter = ParentAdapter(arrayListOf(), this)
+        recyclerView.setHasFixedSize(true)
+        recyclerView.adapter = adapter
 
         Log.d(TAG, "ANA BL MAIN")
         if (savedInstanceState != null) {
@@ -92,27 +92,25 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
         }
         //timer
 //        startTimer()
-        ed?.let { chrono.setBase(it) }
-        chrono.start()
         parentViewModel.parents().observe(this, Observer {
             it?.let { resource ->
                 when (resource.status) {
                     Status.SUCCESS -> {
-                            liveData(Dispatchers.IO) {
-                                emit(
-                                    Resource.success(
-                                        ParentNetwork.devbytes.getTop(
-                                            "created:>2021-02-17",
-                                            "stars",
-                                            "desc",
-                                            "${MainActivity.page}"
-                                        )
+                        liveData(Dispatchers.IO) {
+                            emit(
+                                Resource.success(
+                                    ParentNetwork.devbytes.getTop(
+                                        "created:>2021-02-17",
+                                        "stars",
+                                        "desc",
+                                        "${MainActivity.page}"
                                     )
                                 )
-                            }
-                                Log.d(TAG, "bl success")
-                                recyclerView.visibility = View.VISIBLE
-                                resource.data?.let { users -> retrieveList(users) }
+                            )
+                        }
+                        Log.d(TAG, "bl success")
+                        recyclerView.visibility = View.VISIBLE
+                        resource.data?.let { users -> retrieveList(users) }
                     }
                     Status.ERROR -> {
                         recyclerView.visibility = View.VISIBLE
@@ -135,6 +133,7 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
         }
 
         recyclerView.adapter = adapter
+
         nestedScrollView.setOnScrollChangeListener(object :
             NestedScrollView.OnScrollChangeListener {
             override fun onScrollChange(
@@ -181,8 +180,11 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
 
         val layoutButton = menu?.findItem(R.id.menu)
         val layoutSwitch = menu!!.findItem(R.id.switchOnOffItem)
-        switcher =layoutSwitch.actionView as SwitchCompat
-
+        switcher = layoutSwitch.actionView as SwitchCompat
+        val timer = menu!!.findItem(R.id.timer)
+        chrono = timer.actionView as Chronometer
+        ed?.let { chrono.setBase(it) }
+        chrono.start()
         // Calls code to set the icon based on the LinearLayoutManager of the RecyclerView
         setIcon(layoutButton)
 
@@ -217,16 +219,16 @@ class MainActivity : AppCompatActivity(), OnNoteClickListner {
     private fun sortMyList() {
         if (radioButtn)
             adapter.apply {
-                val edy =sortUsers()
-                addUsers(edy)
+                sortUsers()
+
             }
         else
             adapter.apply {
-                addUsers(unsortUsers())
+                unsortUsers()
                 notifyDataSetChanged()
 
             }
-        recyclerView.adapter= adapter
+        recyclerView.adapter = adapter
 
     }
 
